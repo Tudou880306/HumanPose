@@ -1,0 +1,25 @@
+﻿  stdafx.cpp
+  dllmain.cpp
+  extract_from_image.cpp
+D:\SVN\ImageProcess\HumanPose\openpose-1.3.0-win64-gpu-binaries\include\opencv2/core/mat.hpp(1965): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+D:\SVN\ImageProcess\HumanPose\openpose-1.3.0-win64-gpu-binaries\include\opencv2/core/persistence.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+D:\SVN\ImageProcess\HumanPose\openpose-1.3.0-win64-gpu-binaries\include\opencv2/core/utility.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+D:\SVN\ImageProcess\HumanPose\openpose-1.3.0-win64-gpu-binaries\include\opencv2/core/utility.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+extract_from_image.cpp(98): warning C4838: 从“int”转换到“double”需要收缩转换
+extract_from_image.cpp(121): warning C4838: 从“int”转换到“double”需要收缩转换
+extract_from_image.cpp(385): warning C4244: “=”: 从“double”转换到“google::int32”，可能丢失数据
+extract_from_image.cpp(623): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+extract_from_image.cpp(625): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+extract_from_image.cpp(801): warning C4244: “参数”: 从“const float”转换到“int”，可能丢失数据
+  HumanPose.cpp
+D:\SVN\ImageProcess\HumanPose\openpose-1.3.0-win64-gpu-binaries\include\opencv2/core/mat.hpp(1965): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+D:\SVN\ImageProcess\HumanPose\openpose-1.3.0-win64-gpu-binaries\include\opencv2/core/persistence.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+D:\SVN\ImageProcess\HumanPose\openpose-1.3.0-win64-gpu-binaries\include\opencv2/core/utility.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+D:\SVN\ImageProcess\HumanPose\openpose-1.3.0-win64-gpu-binaries\include\opencv2/core/utility.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+  tinyxml2.cpp
+    正在创建库 D:\SVN\ImageProcess\HumanPose\x64\Release\HumanPoseDLL.lib 和对象 D:\SVN\ImageProcess\HumanPose\x64\Release\HumanPoseDLL.exp
+  正在生成代码
+  All 971 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  已完成代码的生成
+  HumanPose.vcxproj -> D:\SVN\ImageProcess\HumanPose\x64\Release\HumanPoseDLL.dll
+  HumanPose.vcxproj -> D:\SVN\ImageProcess\HumanPose\x64\Release\HumanPoseDLL.pdb (Full PDB)
