@@ -15,6 +15,7 @@ using namespace std;
 using namespace cv;
 std::map<int, std::vector<int>>resoult1, resoult2, resoult3, resoult4;
 
+#pragma comment(lib, "opencv_world310d.lib")
 
 void output(int i)
 {
@@ -180,10 +181,14 @@ int main()
 			//	cap >> cap_frame;
 			//	//std::cout << "cap_frame" << std::endl;
 			//});
+			if (cur_frame.empty())
+			{
+				continue;
+			}
 			cv::imshow("dst4", cur_frame);
 			clock_t starts;clock_t ends;
 			
-			//if (frame_num%25==0)
+			if (frame_num%25==0)
 			{
 				starts = clock();
 				HPLib_StartProcess(handle, cur_frame, resoult1);

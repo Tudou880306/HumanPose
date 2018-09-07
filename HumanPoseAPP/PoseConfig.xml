@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Config>
     <OpenPose name="OpenPose">
-        <logging_level value="0"/>
+        <logging_level value="5"/>
         <image_path value="media/test.jpg"/>
         <model_pose value="COCO"/>
         <model_folder value="models/"/>
@@ -13,6 +13,8 @@
         <disable_blending value="false"/>
         <render_threshold value="0.05"/>
         <alpha_pose value="1"/>
+		<sleepthreshold value ="10"/><!--//阈值 严格等级 0~9999-->
+		<sleepframe value="15"/><!--//检测帧数-->
     </OpenPose>
     <LogSetting name="LogSetting"/>
 </Config>

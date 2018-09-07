@@ -34,10 +34,13 @@ private:
 	op::Point<int>m_netInputSize;
 	op::PoseModel m_poseModel;
 
-	IplImage  *oldimg;//判断是否睡觉 ; 输入的第一帧
+//	IplImage  *oldimg;//判断是否睡觉 ; 输入的第一帧
 	op::Array<float> olddata;
 	op::PoseExtractorCaffe * poseExtractorCaffe;
 	op::PoseCpuRenderer* poseRenderer;
+
+	int m_sleepthreshold;//阈值 严格等级 0~9999
+	int m_sleepframe;//检测帧数
 
 public:
 

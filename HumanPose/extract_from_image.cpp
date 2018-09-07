@@ -25,24 +25,24 @@
 namespace gflags = google;
 #endif
 
-#ifdef _DEBUG
-#pragma comment(lib, "opencv_world310.lib") 
-#pragma comment(lib, "openpose.lib") 
-#pragma comment(lib, "gflags.lib")
-//#pragma comment(lib, "opencv_world310d.lib")   
+//#ifdef _DEBUG
+//#pragma comment(lib, "opencv_world310d.lib") 
 //#pragma comment(lib, "openposed.lib") 
+//#pragma comment(lib, "gflagsd.lib")
+////#pragma comment(lib, "opencv_world310d.lib")   
+////#pragma comment(lib, "openposed.lib") 
+////#pragma comment(lib, "gflags.lib") 
+//#else
+//#pragma comment(lib, "opencv_world310.lib") 
+//#pragma comment(lib, "openpose.lib") 
 //#pragma comment(lib, "gflags.lib") 
-#else
-#pragma comment(lib, "opencv_world310.lib") 
-#pragma comment(lib, "openpose.lib") 
-#pragma comment(lib, "gflags.lib") 
-#endif
+//#endif
 
 // See all the available parameter options withe the `--help` flag. E.g. `build/examples/openpose/openpose.bin --help`
 // Note: This command will show you flags for other unnecessary 3rdparty files. Check only the flags for the OpenPose
 // executable. E.g. for `openpose.bin`, look for `Flags from examples/openpose/openpose.cpp:`.
 // Debugging/Other
-DEFINE_int32(logging_level, 0, "The logging level. Integer in the range [0, 255]. 0 will output any log() message, while"
+DEFINE_int32(logging_level, 3, "The logging level. Integer in the range [0, 255]. 0 will output any log() message, while"
 	" 255 will not output any. Current OpenPose library messages are in the range 0-4: 1 for"
 	" low priority messages and 4 for important ones.");
 // Producer
@@ -59,7 +59,7 @@ DEFINE_string(net_resolution, "-1x368", "Multiples of 16. If it is increased, th
 	" e.g. full HD (1980x1080) and HD (1280x720) resolutions.");
 DEFINE_string(output_resolution, "-1x-1", "The image resolution (display and output). Use \"-1x-1\" to force the program to use the"
 	" input image resolution.");
-DEFINE_int32(num_gpu_start, 0, "GPU device start number.");
+DEFINE_int32(num_gpu_start, -1, "GPU device start number.");
 DEFINE_double(scale_gap, 0.3, "Scale gap between scales. No effect unless scale_number > 1. Initial scale is always 1."
 	" If you want to change the initial scale, you actually want to multiply the"
 	" `net_resolution` by your desired initial scale.");
@@ -153,7 +153,7 @@ std::vector<int> TopMatchPerson(op::Array<float> olddata, op::Array<float> newda
 		int topmatch = 9999;
 		for (int person_o = 0; person_o < persons_o; person_o++)
 		{
-			int match = 9999;
+			int match = 0;
 			for (int pair = 0u; pair < 18; pair++)
 			{
 				const int index_n = (person_n * numberKeypoints_n + pair) * newdata.getSize(2);
@@ -162,7 +162,7 @@ std::vector<int> TopMatchPerson(op::Array<float> olddata, op::Array<float> newda
 				const int index_o = (person_o * numberKeypoints_o + pair) * olddata.getSize(2);
 				cv::Point keypoint_o{ intRound(olddata[index_o]), intRound(olddata[index_o + 1]) };
 
-				match += (keypoint_n.x - keypoint_o.x) + (keypoint_n.y - keypoint_o.y);
+				match += abs(keypoint_n.x - keypoint_o.x) + abs(keypoint_n.y - keypoint_o.y);
 			}
 			if (match<=topmatch)
 			{
@@ -177,8 +177,9 @@ std::vector<int> TopMatchPerson(op::Array<float> olddata, op::Array<float> newda
 }
 ExtractFeature::ExtractFeature()
 {
-	oldimg = cvCreateImage(cvSize(400, 400), IPL_DEPTH_8U, 3);
-
+//	oldimg = cvCreateImage(cvSize(400, 400), IPL_DEPTH_8U, 3);
+	m_sleepthreshold = 20;
+	m_sleepframe = 20;
 }
 
 ExtractFeature::~ExtractFeature()
@@ -430,23 +431,40 @@ int ExtractFeature::LoadXml(const char* xml)
 					else
 						return -1;
 				}
+
+				element = element->NextSiblingElement("sleepthreshold");
+				if (element == nullptr)
+					return -1;
+				else
+				{
+					if (strcmp(element->FirstAttribute()->Name(), "value") == 0)
+					{
+						m_sleepthreshold = atoi(element->FirstAttribute()->Value());
+					}
+					else
+						return -1;
+				}
+				element = element->NextSiblingElement("sleepframe");
+				if (element == nullptr)
+					return -1;
+				else
+				{
+					if (strcmp(element->FirstAttribute()->Name(), "value") == 0)
+					{
+						m_sleepframe = atoi(element->FirstAttribute()->Value());
+					}
+					else
+						return -1;
+				}
 			}
 		}
 
 	}
-
-	/*FLAGS_logging_level = 0;
-	FLAGS_image_path = "media/test.jpg";
-	FLAGS_model_pose = "COCO";
-	FLAGS_model_folder = "models/";
-	FLAGS_net_resolution = "-1x368";
-	FLAGS_output_resolution = "-1x-1";
-	FLAGS_num_gpu_start = 0;
-	FLAGS_scale_gap = 0.3;
-	FLAGS_scale_number = 1;
-	FLAGS_disable_blending = false;
-	FLAGS_render_threshold = 0.05;
-	FLAGS_alpha_pose = 1;*/
+	else
+	{
+		op::error("load xml failed!", __LINE__, __FUNCTION__, __FILE__);
+		return -1;
+	}
 	return 0;
 }
 /****************************************!
@@ -467,7 +485,7 @@ int ExtractFeature::InitHandle()
 	op::check(0 <= FLAGS_logging_level && FLAGS_logging_level <= 255, "Wrong logging_level value.",
 		__LINE__, __FUNCTION__, __FILE__);
 	op::ConfigureLog::setPriorityThreshold((op::Priority)FLAGS_logging_level);
-	op::log("", op::Priority::Low, __LINE__, __FUNCTION__, __FILE__);
+	//op::log("", op::Priority::Low, __LINE__, __FUNCTION__, __FILE__);
 	// Step 2 - Read Google flags (user defined configuration)
 	// outputSize
 	 m_outputSize = op::flagsToPoint(FLAGS_output_resolution, "-1x-1");
@@ -482,7 +500,7 @@ int ExtractFeature::InitHandle()
 		op::error("Incompatible flag configuration: scale_gap must be greater than 0 or scale_number = 1.",
 			__LINE__, __FUNCTION__, __FILE__);
 	// Logging
-	op::log("", op::Priority::Low, __LINE__, __FUNCTION__, __FILE__);
+	//op::log("", op::Priority::Low, __LINE__, __FUNCTION__, __FILE__);
 	// Step 3 - Initialize all required classes
 
 
@@ -550,9 +568,9 @@ int ExtractFeature::ProcessImage(cv::Mat inputImage, std::map<int, std::vector<i
 	op::ScaleAndSizeExtractor scaleAndSizeExtractor(m_netInputSize, m_outputSize, FLAGS_scale_number, FLAGS_scale_gap);
 	op::CvMatToOpInput cvMatToOpInput{ m_poseModel };
 	op::CvMatToOpOutput cvMatToOpOutput;
-	//op::PoseExtractorCaffe poseExtractorCaffe{ m_poseModel, FLAGS_model_folder, FLAGS_num_gpu_start };
-	//op::PoseCpuRenderer poseRenderer{ m_poseModel, (float)FLAGS_render_threshold, !FLAGS_disable_blending,
-	//	(float)FLAGS_alpha_pose };
+	/*op::PoseExtractorCaffe poseExtractorCaffe{ m_poseModel, FLAGS_model_folder, FLAGS_num_gpu_start };
+	op::PoseCpuRenderer poseRenderer{ m_poseModel, (float)FLAGS_render_threshold, !FLAGS_disable_blending,
+		(float)FLAGS_alpha_pose };*/
 	op::OpOutputToCvMat opOutputToCvMat;
 	op::FrameDisplayer frameDisplayer{ "OpenPose Tutorial - Example 1", m_outputSize };
 	//// Step 4 - Initialize resources on desired thread (in this case single thread, i.e. we init resources here)
@@ -582,7 +600,7 @@ int ExtractFeature::ProcessImage(cv::Mat inputImage, std::map<int, std::vector<i
 	poseExtractorCaffe->forwardPass(netInputArray, imageSize, scaleInputToNetInputs);
 	auto poseKeypoints = poseExtractorCaffe->getPoseKeypoints();
 #if 1
-	cv::namedWindow("test1", 0);
+	//cv::namedWindow("test1", 0);
 	IplImage *imgage1 = cvCreateImage(CvSize(333, 500), IPL_DEPTH_8U, 3);
 	cvZero(imgage1);
 	cv::Mat mat = cv::cvarrToMat(imgage1);
@@ -599,6 +617,7 @@ int ExtractFeature::ProcessImage(cv::Mat inputImage, std::map<int, std::vector<i
 	const auto numberPeopleDetected = poseKeypoints.getSize(0);
 	const auto numberBodyParts = poseKeypoints.getSize(1);
 	printf("people:%d,parts:%d.\n", numberPeopleDetected, numberBodyParts);
+	cvReleaseImage(&imgage1);
 
 #endif
 
@@ -689,7 +708,7 @@ int ExtractFeature::ProcessImage(cv::Mat inputImage, std::map<int, std::vector<i
 						sprintf_s(sh, sizeof(sh), "index:%d  == end.x :%d  ==== end.y: %d ", pair / 2, keypoint2.x, keypoint2.y);
 						//op::log(sh, op::Priority::High);
 
-						cv::line(frameR, keypoint1, keypoint2, color[0], thicknessLineScaled, lineType, shift);
+						/*cv::line(frameR, keypoint1, keypoint2, color[0], thicknessLineScaled, lineType, shift);
 						cv::line(frameG, keypoint1, keypoint2, color[1], thicknessLineScaled, lineType, shift);
 						cv::line(frameB, keypoint1, keypoint2, color[2], thicknessLineScaled, lineType, shift);
 						if (pair == 0)
@@ -698,7 +717,7 @@ int ExtractFeature::ProcessImage(cv::Mat inputImage, std::map<int, std::vector<i
 							cv::putText(frameR, ch, keypoint1, 0, 2, cv::Scalar(0, 255, 255), 2, 8, 0);
 							cv::putText(frameG, ch, keypoint1, 0, 2, cv::Scalar(0, 255, 255), 2, 8, 0);
 							cv::putText(frameB, ch, keypoint1, 0, 2, cv::Scalar(0, 255, 255), 2, 8, 0);
-						}
+						}*/
 					}
 
 
@@ -811,7 +830,7 @@ int ExtractFeature::ProcessImage(cv::Mat inputImage, std::map<int, std::vector<i
 		}
 #endif
 	//////////////////////////////////////////////////////////////////////////
-#if 1
+#if 0
 	static int temp = 0;
 	static bool first = true;
 	if (first)
@@ -826,7 +845,7 @@ int ExtractFeature::ProcessImage(cv::Mat inputImage, std::map<int, std::vector<i
 		bool somesleep = false;
 		for (std::vector<int>::iterator it = result.begin();it!=result.end();it++)
 		{
-			if (*it < 10)
+			if (*it < m_sleepthreshold)
 			{
 				somesleep = true;
 			}
@@ -840,9 +859,9 @@ int ExtractFeature::ProcessImage(cv::Mat inputImage, std::map<int, std::vector<i
 			olddata = poseKeypoints;
 		}
 	}
-	if (temp >15)
+	if (temp >m_sleepframe)
 	{
-		op::log("temp>15", op::Priority::High);
+		op::log("someone is sleeping", op::Priority::High);
 		temp = 0;
 		olddata = poseKeypoints;
 	}
@@ -880,9 +899,9 @@ int ExtractFeature::ProcessImage(cv::Mat inputImage, std::map<int, std::vector<i
 		//oldimg = img;
 		cvCopy(img1, oldimg, NULL);
 	}
-	//cvReleaseImage(&imgage1);
 	cvReleaseImage(&img1);
 #endif
+
 	//cvShowImage("test1", (CvArr*)&outputImage1);
 	//cv::imshow("test1", outputImage1);
 	//frameDisplayer.displayFrame(outputImage1, 0);
