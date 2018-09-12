@@ -916,7 +916,7 @@ int ExtractFeature::ProcessImage(cv::Mat inputImage, std::map<int, std::vector<i
 												 // Step 2 - Logging information message
 	op::log("Example 1 successfully finished.", op::Priority::High);
 	// Return successful message
-	return 0;
+	return 1;
 
 }
 
@@ -924,5 +924,5 @@ int ExtractFeature::ReleaseHandle()
 {
 	delete poseExtractorCaffe;
 	delete poseRenderer;
-	return 0;
+	return 1;
 }

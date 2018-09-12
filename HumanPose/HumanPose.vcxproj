@@ -78,8 +78,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>..\openpose-1.4.0-win64-gpu-binaries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\openpose-1.4.0-win64-gpu-binaries\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\openpose-1.4.0-win64-gpu-binaries\include;$(SolutionDir)Log4cplus\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\openpose-1.4.0-win64-gpu-binaries\lib;$(SolutionDir)Log4cplus\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -116,7 +116,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opencv_world310.lib;openpose.lib;gflags.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_world310.lib;openpose.lib;gflags.lib;log4cplusUD.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -161,6 +161,7 @@
   <ItemGroup>
     <ClInclude Include="extract_from_image.h" />
     <ClInclude Include="HumanPose.h" />
+    <ClInclude Include="log.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="tinyxml2.h" />
@@ -182,6 +183,7 @@
     </ClCompile>
     <ClCompile Include="extract_from_image.cpp" />
     <ClCompile Include="HumanPose.cpp" />
+    <ClCompile Include="log.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

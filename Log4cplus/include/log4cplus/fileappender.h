@@ -5,7 +5,7 @@
 // Author:  Tad E. Smith
 //
 //
-// Copyright 2001-2015 Tad E. Smith
+// Copyright 2001-2017 Tad E. Smith
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -106,9 +106,15 @@ namespace log4cplus
      * <dd>Set this property to <tt>true</tt> if you want to create
      * missing directories in path leading to log file and lock file.
      * </dd>
+     *
+     * <dt><tt>TextMode</tt></dt>
+     * <dd>Set this property to <tt>Binary</tt> if the underlying stream should
+     * not translate EOLs to OS specific character sequence. The default value
+     * is <tt>Text</tt> and the underlying stream will be opened in text
+     * mode.</dd>
      * </dl>
      */
-    class FileAppenderBase : public Appender {
+    class LOG4CPLUS_EXPORT FileAppenderBase : public Appender {
     public:
       // Methods
         virtual void close();
@@ -169,7 +175,7 @@ namespace log4cplus
         int reopenDelay;
 
         unsigned long bufferSize;
-        log4cplus::tchar * buffer;
+        std::unique_ptr<log4cplus::tchar[]> buffer;
 
         log4cplus::tofstream out;
         log4cplus::tstring filename;
@@ -285,6 +291,21 @@ namespace log4cplus
      * single logging period; e.g. how many <tt>log.2009-11-07.1</tt>,
      * <tt>log.2009-11-07.2</tt> etc. files are kept.</dd>
      *
+     * <dt><tt>RollOnClose</tt></dt>
+     * <dd>This property specifies whether to rollover log files upon
+     * shutdown. By default it's set to <code>true</code> to retain compatibility
+     * with legacy code, however it may lead to undesired behaviour
+     * as described in the github issue #120.</dd>
+     *
+     * <dt><tt>DatePattern</tt></dt>
+     * <dd>This property specifies filename suffix pattern to use for
+     * periodical backups of the logfile. The patern should be in
+     * format supported by {@link log4cplus::helpers::Time::getFormatterTime()}</code>.
+     * Please notice that the format of the pattern is similar but not identical
+     * to the one used for this option in the corresponding Log4J class.
+     * If the property isn't specified a reasonable default for a given
+     * schedule type is used.</dd>
+     *
      * </dl>
      */
     class LOG4CPLUS_EXPORT DailyRollingFileAppender : public FileAppender {
@@ -294,7 +315,9 @@ namespace log4cplus
                                  DailyRollingFileSchedule schedule = DAILY,
                                  bool immediateFlush = true,
                                  int maxBackupIndex = 10,
-                                 bool createDirs = false);
+                                 bool createDirs = false,
+                                 bool rollOnClose = true,
+                                 const log4cplus::tstring& datePattern = log4cplus::tstring());
         DailyRollingFileAppender(const log4cplus::helpers::Properties& properties);
 
       // Dtor
@@ -314,6 +337,8 @@ namespace log4cplus
         log4cplus::tstring scheduledFilename;
         log4cplus::helpers::Time nextRolloverTime;
         int maxBackupIndex;
+        bool rollOnClose;
+        log4cplus::tstring datePattern;
 
     private:
         LOG4CPLUS_PRIVATE void init(DailyRollingFileSchedule schedule);
@@ -349,6 +374,12 @@ namespace log4cplus
      * <dd>If set to true, archive removal will be executed on appender start
      * up.  By default this property is set to false. </dd>
      *
+     * <dt><tt>RollOnClose</tt></dt>
+     * <dd>This property specifies whether to rollover log files upon
+     * shutdown. By default it's set to <code>true</code> to retain compatibility
+     * with legacy code, however it may lead to undesired behaviour
+     * as described in the github issue #120.</dd>
+     *
      * </dl>
      */
     class LOG4CPLUS_EXPORT TimeBasedRollingFileAppender : public FileAppenderBase {
@@ -359,7 +390,8 @@ namespace log4cplus
                                      int maxHistory = 10,
                                      bool cleanHistoryOnStart = false,
                                      bool immediateFlush = true,
-                                     bool createDirs = false);
+                                     bool createDirs = false,
+                                     bool rollOnClose = true);
         TimeBasedRollingFileAppender(const helpers::Properties& properties);
 
       // Dtor
@@ -371,7 +403,7 @@ namespace log4cplus
         void close();
         void rollover(bool alreadyLocked = false);
         void clean(helpers::Time time);
-        int getRolloverPeriodDuration() const;
+        helpers::Time::duration getRolloverPeriodDuration() const;
         helpers::Time calculateNextRolloverTime(const helpers::Time& t) const;
 
       // Data
@@ -380,8 +412,9 @@ namespace log4cplus
         tstring scheduledFilename;
         int maxHistory;
         bool cleanHistoryOnStart;
-        helpers::Time lastHeartBeat;
-        helpers::Time nextRolloverTime;
+        log4cplus::helpers::Time lastHeartBeat;
+        log4cplus::helpers::Time nextRolloverTime;
+        bool rollOnClose;
 
     private:
         LOG4CPLUS_PRIVATE void init();

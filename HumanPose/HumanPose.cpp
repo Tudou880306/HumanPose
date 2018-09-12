@@ -3,10 +3,22 @@
 
 #include "stdafx.h"
 #include "HumanPose.h"
-
+#include "myLoger.h"
+#include "log.h"
+//#include <log4cplus/helpers/loglog.h>
+//#include <log4cplus/logger.h>
+//#include <log4cplus/initializer.h>
+//using namespace log4cplus::helpers;
+//LONG WINAPI TopLevelExceptionFilter(struct _EXCEPTION_POINTERS *pExceptionInfo)
+//{
+//
+//	return	EXCEPTION_EXECUTE_HANDLER;
+//}
 
 HUMANPOSE_API ExtractFeature* HPLib_Init()
 {
+	CLog::Initialize();
+	DEBUG_LOG("HPLib_Init");
 	ExtractFeature *fhandl = new ExtractFeature();
 	if (0==fhandl->LoadXml("PoseConfig.xml")&&0== fhandl->InitHandle())
 	{
